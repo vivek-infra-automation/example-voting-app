@@ -5,13 +5,11 @@ metadata:
     app: vote
   name: vote
 spec:
-  # type: NodePort
   type: ClusterIP
   ports:
   - name: "vote-service"
     port: 80
     targetPort: 80
-    # nodePort: 31000
   selector:
     app: vote
 
@@ -26,27 +24,23 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    kubernetes.io/ingress.class: alb
 spec:
+  ingressClassName: alb
   rules:
-  - host: vote.devcloudgeek.com
-    http:
-      paths:
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: vote
-            port:
-              number: 80
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vote
+                port:
+                  number: 80
 
-  - host: result.mydomain.com
-    http:
-      paths:
-      - pathType: Prefix
-        path: /result
-        backend:
-          service:
-            name: result
-            port:
-              number: 80
+          - path: /result
+            pathType: Prefix
+            backend:
+              service:
+                name: result
+                port:
+                  number: 80
