@@ -1,33 +1,35 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: db
-  name: db
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: db
-  template:
-    metadata:
-      labels:
-        app: db
-    spec:
-      containers:
-      - image: postgres:15-alpine
-        name: postgres
-        env:
-        - name: POSTGRES_USER
-          value: postgres
-        - name: POSTGRES_PASSWORD
-          value: postgres
-        ports:
-        - containerPort: 5432
-          name: postgres
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/data
-          name: db-data
-      volumes:
-      - name: db-data
-        emptyDir: {}
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: db-deploy 
+  Labels: 
+    app: db 
+spec: 
+  replicas: 1 
+  selector: 
+    matchLabels: 
+      app: db 
+  template: 
+    metadata: 
+      Labels: 
+        app: db 
+    spec: 
+      containers: 
+        - name: postgres-cont 
+          image: postgres:13
+          ports: 
+            - containerPort: 5432
+          env: 
+            - name: POSTGRES_USER 
+              value: "admin"
+            - name: POSTGRES_PASSWORD 
+              value: "admin123"
+          
+          volumeMounts: 
+            - mountPath: /var/lib/docker/volume/postgresql/data
+              name: db-volume
+          
+      volume: 
+        - name: db-volume 
+          emptyDir: {}
+                

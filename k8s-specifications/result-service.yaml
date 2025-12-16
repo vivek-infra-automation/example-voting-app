@@ -1,14 +1,14 @@
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: result
-  name: result
-spec:
-  type: ClusterIP
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: result-svc
+  Lebels: 
+    app: result 
+spec: 
+  type: ClusterIP 
+  selector: 
+    app: result 
   ports:
-  - name: "result-service"
-    port: 80
-    targetPort: 80
-  selector:
-    app: result
+    - port: 80
+      targetPort: 80 
+
