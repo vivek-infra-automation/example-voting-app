@@ -20,10 +20,16 @@ spec:
           ports: 
             - containerPort: 5432
           env: 
-            - name: POSTGRES_USER 
-              value: "admin"
+            - name: POSTGRES_USER
+              valueFrom: 
+                configMapKeyRef: 
+                  name: db-configmap
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD 
-              value: "admin123"
+              valueFrom: 
+                secretKeyRef: 
+                  name: db-secrets
+                  key: POSTGRES_PASSWORD
           
           volumeMounts: 
             - mountPath: /var/lib/docker/volume/postgresql/data
