@@ -1,0 +1,54 @@
+pipeline {
+    agent any 
+
+    environment {
+        DOCKERHUB_REPO="harishrajput3/harish-repo"
+        DOCKER_CRED_ID="dockerhub-cred"
+        GITHUB_URL="https://github.com/harishrajput13/voting-app-k8s.git"
+    }    
+
+    stages {
+        stage ('Checkout') {
+            steps { 
+                git branch: 'main', url: GITHUB_URL
+            } 
+        }
+    }
+
+    stages{
+         stage (Get Commit ID) {
+            steps {
+                COMMIT_ID = sh (script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                env.IMAGE_TAG = COMMIT_ID
+                echo "Commit ID: ${IMAGE_TAG}"
+            }
+        }
+    }
+
+    stages { 
+        stage ('Build Image from Dockerfile') {
+            steps { 
+                sh 'docker build . -f /vote/Dockerfile -t ${env.IMAGE_TAG}'
+            }
+        }
+    }
+
+    stages {
+        stage (Testing the image) {
+            script {
+                sh '''
+                CID = $(docker run -itd -p 8080:80 ${env.IMAGE_TAG})
+                docker rm -f $CID || true
+                '''
+            }
+        }
+    }
+
+    stages {
+        stage (Login & Push Image) {
+            script {
+            	sh     
+            }
+        }
+    }
+}
