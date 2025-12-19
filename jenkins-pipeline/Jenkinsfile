@@ -20,7 +20,7 @@ pipeline {
             steps {
                 COMMIT_ID = sh (script: "git rev-parse --short HEAD", returnStdout: true).trim()
                 env.IMAGE_TAG = COMMIT_ID
-                echo "Commit ID: ${IMAGE_TAG}"
+                echo "Commit ID: ${env.IMAGE_TAG}"
             }
         }
     }
@@ -47,8 +47,31 @@ pipeline {
     stages {
         stage (Login & Push Image) {
             script {
-            	sh     
+            	withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws-cred', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                sh '''
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 260475104650.dkr.ecr.us-east-1.amazonaws.com
+                    docker push ${DOCKERHUB_REPO}:${env.IMAGE_TAG}
+                '''
+            }  
+                echo "Push ${DOCKERHUB_REPO}:${env.IMAGE_TAG} to DockerHub" 
             }
+        }
+    }
+
+    stages{
+        stage (Cleanup Docker) {
+            steps {
+                sh 'docker rmi ${DOCKERHUB_REPO}:${env.IMAGE_TAG} || true'
+            }
+        }
+    }
+
+    post {
+        sucess {
+            echo "Image ${DOCKERHUB_REPO}:${env.IMAGE_TAG} Sucessfully"
+        }
+        failure {
+            echo "Pipeline is failed, check logs"
         }
     }
 }
